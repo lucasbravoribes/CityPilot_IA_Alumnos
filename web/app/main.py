@@ -1,6 +1,7 @@
 """Rutas del servicio Flask. Esqueleto intencionalmente incompleto."""
-from flask import Flask, jsonify, render_template
-from .db import ping_db
+from flask import Flask, jsonify, render_template, send_file
+from .db import ping_db, obtener_estadisticas, obtener_ultimas_solicitudes
+from .grafico import generar_grafico_png
 
 
 def create_app():
@@ -34,19 +35,33 @@ def create_app():
 
     @app.get("/analitica")
     def analitica():
-        # TODO(ALUMNADO): consultar PostgreSQL y pasar métricas a la plantilla.
-        return render_template("analitica.html", totales=None, top_ciudades=[], ultimas=[])
+        # Todo viene de PostgreSQL; si la BD falla se avisa sin mostrar traceback.
+        try:
+            stats = obtener_estadisticas()
+            ultimas = obtener_ultimas_solicitudes(8)
+        except Exception:
+            return render_template("analitica.html", totales=None, top_ciudades=[], por_tipo=[],
+                                   ultimas=[], error="No se pudo consultar la base de datos.")
+        return render_template("analitica.html", totales=stats, top_ciudades=stats["por_ciudad"],
+                               por_tipo=stats["por_tipo"], ultimas=ultimas, error=None)
 
     @app.get("/analitica/grafico.png")
     def grafico():
-        # TODO(ALUMNADO): generar una gráfica PNG de Matplotlib con datos SQL,
-        # utilizando un BytesIO y Flask send_file. No JavaScript.
-        return "Pendiente: gráfica de peticiones", 501
+        try:
+            png = generar_grafico_png(obtener_estadisticas())
+        except Exception:
+            return "No se pudo generar la gráfica.", 503
+        # max_age=0 + no-store: el navegador no cachea y la gráfica refleja la última consulta.
+        respuesta = send_file(png, mimetype="image/png", max_age=0)
+        respuesta.headers["Cache-Control"] = "no-store"
+        return respuesta
 
     @app.get("/api/estadisticas")
     def estadisticas_api():
-        # TODO(ALUMNADO): exponer el resumen de la base de datos como JSON.
-        return jsonify(error="Pendiente: estadísticas"), 501
+        try:
+            return jsonify(obtener_estadisticas())
+        except Exception:
+            return jsonify(error="No se pudo consultar la base de datos."), 503
 
     return app
 

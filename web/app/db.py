@@ -59,10 +59,55 @@ def guardar_solicitud(registro: dict) -> int:
 
 
 def obtener_estadisticas() -> dict:
-    """TODO(ALUMNADO): total, agrupación por ciudad/tipo y nº errores."""
-    raise NotImplementedError("Implementa SELECTs de analítica")
+    """Métricas para el panel y para GET /api/estadisticas (todo desde PostgreSQL).
+
+    Convenio con el orquestador: estado 'ok' = éxito, 'error' = fallo.
+    """
+    if engine is None:
+        raise RuntimeError("Falta DATABASE_URL")
+    with engine.connect() as conn:
+        resumen = conn.execute(text("""
+            SELECT COUNT(*)                                   AS total,
+                   COUNT(DISTINCT ciudad)                     AS ciudades_distintas,
+                   COUNT(*) FILTER (WHERE estado = 'error')   AS errores
+            FROM solicitudes
+        """)).mappings().one()
+        por_ciudad = conn.execute(text("""
+            SELECT ciudad, COUNT(*) AS total
+            FROM solicitudes
+            GROUP BY ciudad
+            ORDER BY total DESC, ciudad
+            LIMIT 5
+        """)).mappings().all()
+        por_tipo = conn.execute(text("""
+            SELECT tipo_turismo, COUNT(*) AS total
+            FROM solicitudes
+            GROUP BY tipo_turismo
+            ORDER BY total DESC, tipo_turismo
+        """)).mappings().all()
+    return {
+        "total": resumen["total"],
+        "ciudades_distintas": resumen["ciudades_distintas"],
+        "errores": resumen["errores"],
+        "por_ciudad": [dict(f) for f in por_ciudad],
+        "por_tipo": [dict(f) for f in por_tipo],
+    }
 
 
 def obtener_ultimas_solicitudes(limite: int = 8) -> list[dict]:
-    """TODO(ALUMNADO): últimas solicitudes sin mostrar claves ni secretos."""
-    raise NotImplementedError("Implementa SELECT con ORDER BY fecha DESC LIMIT")
+    """Últimas solicitudes, más recientes primero (solo columnas seguras para mostrar)."""
+    if engine is None:
+        raise RuntimeError("Falta DATABASE_URL")
+    limite = max(1, min(int(limite), 50))
+    with engine.connect() as conn:
+        filas = conn.execute(text("""
+            SELECT id, fecha, ciudad, tipo_turismo, duracion_horas,
+                   estado, modo_demo, modo_modelo, duracion_ms
+            FROM solicitudes
+            ORDER BY fecha DESC, id DESC
+            LIMIT :limite
+        """), {"limite": limite}).mappings().all()
+    return [dict(f) for f in filas]
+
+
+
