@@ -1,0 +1,9 @@
+{
+  "origen": "datos sinteticos para tests; NO son lugares verificados",
+  "lugares": [
+    {"nombre": "Museo de Ejemplo (DEMO)", "categoria": "museum", "lat": 39.4702, "lon": -0.3759, "fuente": "fixture", "demo": true},
+    {"nombre": "Jardin de Ejemplo (DEMO)", "categoria": "park", "lat": 39.4720, "lon": -0.3762, "fuente": "fixture", "demo": true},
+    {"nombre": "Restaurante de Ejemplo (DEMO)", "categoria": "restaurant", "lat": 39.4715, "lon": -0.3771, "fuente": "fixture", "demo": true},
+    {"nombre": "Monumento de Ejemplo (DEMO)", "categoria": "monument", "lat": 39.4690, "lon": -0.3801, "fuente": "fixture", "demo": true}
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "AVISO": "EJEMPLOS DE ESTRUCTURA. No representan consultas reales ni el pronostico de hoy.",
+  "geocoding": {"results": [{"name": "Valencia", "country": "Spain", "latitude": 39.47, "longitude": -0.38}]},
+  "weather": {"current": {"time": "2026-01-01T12:00", "temperature_2m": 18.0, "precipitation": 0.0, "weather_code": 1}},
+  "overpass": {"elements": [{"type": "node", "id": 111, "lat": 39.47, "lon": -0.38, "tags": {"name": "Lugar de Ejemplo (DEMO)", "tourism": "museum"}}, {"type": "way", "id": 222, "center": {"lat": 39.471, "lon": -0.379}, "tags": {"name": "Otro Ejemplo (DEMO)", "historic": "monument"}}]}
+}

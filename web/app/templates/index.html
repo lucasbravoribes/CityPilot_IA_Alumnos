@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Planificador · CityPilot IA{% endblock %}
+{% block content %}
+<section class="hero">
+  <span class="eyebrow">TALLER DE INTEGRACIÓN · DATOS EN DIRECTO</span>
+  <h1>¿Qué hacemos hoy?</h1>
+  <p>Elige dónde ir y cómo te apetece descubrir la ciudad. Combinaremos información meteorológica, lugares abiertos y un modelo generativo.</p>
+</section>
+<section class="surface">
+  <h2>Tu plan para hoy</h2>
+  <!-- TODO(ALUMNADO): construir aquí un formulario HTML real.
+       action="/planificar", method="POST".
+       Campos obligatorios: ciudad (texto), tipo_turismo (select con
+       cultural/gastronomica/naturaleza/familiar), duracion_horas (2,4,6).
+       Campo opcional: preferencias (textarea de 200 caracteres aprox.).
+       Botón submit. Etiquetas accesibles y validación básica HTML.
+       IMPORTANTE: no se proporciona el HTML del formulario. -->
+  <div class="todo">🛠️ <strong>Por implementar:</strong> formulario de preferencias y botón «Generar mi ruta».</div>
+</section>
+<section class="three">
+  <article class="tile"><h3>🌤️ Meteo</h3><p>El plan tendrá en cuenta el tiempo.</p></article>
+  <article class="tile"><h3>📍 Lugares reales</h3><p>El modelo recibirá destinos recuperados de OpenStreetMap.</p></article>
+  <article class="tile"><h3>🧠 Plan inteligente</h3><p>Reordenará y explicará las propuestas según tus preferencias.</p></article>
+</section>
+{% endblock %}

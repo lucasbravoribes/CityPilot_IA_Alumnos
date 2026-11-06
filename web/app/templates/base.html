@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}CityPilot IA{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">CityPilot <strong>IA</strong></a>
+    <nav><a href="/">Planificador</a><a href="/analitica">Analítica</a><a href="/api/health">API health</a></nav>
+  </header>
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+  <footer>Fuentes: <a href="https://open-meteo.com/">Open-Meteo</a> · © <a href="https://www.openstreetmap.org/copyright">Colaboradores de OpenStreetMap</a> · Proyecto académico · No se garantizan horarios de apertura</footer>
+</body>
+</html>
