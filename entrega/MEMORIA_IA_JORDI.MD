@@ -26,7 +26,7 @@
   - Panel real en http://localhost:5000/analitica con datos de PostgreSQL (captura: [RUTA, p. ej. `entrega/captura_panel.png`]).
 
 ## 2. Herramientas y fuentes usadas
-
+ 
 | Herramienta o fuente | Modelo/versión, si se conoce | Finalidad | ¿Se incorporó código o texto? |
 |---|---|---|---|
 | Claude (claude.ai) | Claude Sonnet 5.5 | Explicar el flujo de trabajo, guiar paso a paso, proponercódigo alternativo al escrito con corrección de fallos de mi parte, depurar errores, redactar plantillas de PR| **Sí**: funciones de `db.py`, `grafico.py`, `analitica.html`, rutas de `main.py`, 3 tests |
