@@ -2,16 +2,61 @@
 {% block title %}Analítica · CityPilot IA{% endblock %}
 {% block content %}
 <section class="hero"><span class="eyebrow">MONITORIZACIÓN · POSTGRESQL</span><h1>Qué están pidiendo los usuarios</h1><p>Un panel basado en las solicitudes realmente almacenadas.</p></section>
+
+{% if error %}
+<div class="notice">{{ error }}</div>
+{% endif %}
+
 <section class="three">
-  <article class="tile"><h3>Peticiones totales</h3><p class="metric">—</p></article>
-  <article class="tile"><h3>Ciudades distintas</h3><p class="metric">—</p></article>
-  <article class="tile"><h3>Errores</h3><p class="metric">—</p></article>
+  <article class="tile"><h3>Peticiones totales</h3><p class="metric">{{ totales.total if totales else "—" }}</p></article>
+  <article class="tile"><h3>Ciudades distintas</h3><p class="metric">{{ totales.ciudades_distintas if totales else "—" }}</p></article>
+  <article class="tile"><h3>Errores</h3><p class="metric">{{ totales.errores if totales else "—" }}</p></article>
 </section>
+
 <section class="surface">
   <h2>Distribución de peticiones</h2>
-  <!-- TODO(ALUMNADO): imagen de /analitica/grafico.png y tabla (o top 5)
-       desde los datos consultados a PostgreSQL, NO en memoria.
-       Mostrar además una tabla de las 8 últimas peticiones (sin secretos). -->
-  <div class="todo">🛠️ Por implementar: métricas, una gráfica y tabla de peticiones recientes.</div>
+  {% if totales and totales.total > 0 %}
+  <img class="chart" src="{{ url_for('grafico') }}" alt="Gráfica de peticiones por ciudad y por tipo de turismo">
+  {% else %}
+  <p>Todavía no hay solicitudes guardadas. Genera una ruta en el <a href="/">planificador</a> y vuelve aquí.</p>
+  {% endif %}
+</section>
+
+<section class="surface">
+  <h2>Ciudades más consultadas</h2>
+  {% if top_ciudades %}
+  <table class="data-table">
+    <thead><tr><th>Ciudad</th><th>Peticiones</th></tr></thead>
+    <tbody>
+      {% for c in top_ciudades %}
+      <tr><td>{{ c.ciudad }}</td><td>{{ c.total }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p>Sin datos todavía.</p>{% endif %}
+</section>
+
+<section class="surface">
+  <h2>Últimas 8 solicitudes</h2>
+  {% if ultimas %}
+  <table class="data-table">
+    <thead><tr><th>#</th><th>Fecha</th><th>Ciudad</th><th>Tipo</th><th>Horas</th><th>Estado</th><th>Datos</th><th>Modelo</th><th>ms</th></tr></thead>
+    <tbody>
+      {% for u in ultimas %}
+      <tr>
+        <td>{{ u.id }}</td>
+        <td>{{ u.fecha.strftime("%d/%m/%Y %H:%M") }}</td>
+        <td>{{ u.ciudad }}</td>
+        <td>{{ u.tipo_turismo }}</td>
+        <td>{{ u.duracion_horas }}</td>
+        <td>{{ u.estado }}</td>
+        <td>{{ "DEMO" if u.modo_demo else "real" }}</td>
+        <td>{{ u.modo_modelo or "—" }}</td>
+        <td>{{ u.duracion_ms if u.duracion_ms is not none else "—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p>Sin solicitudes todavía.</p>{% endif %}
 </section>
 {% endblock %}
