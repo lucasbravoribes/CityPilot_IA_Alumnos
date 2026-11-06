@@ -1,6 +1,6 @@
 """Rutas del servicio Flask. Esqueleto intencionalmente incompleto."""
 from flask import Flask, jsonify, render_template
-from CityPilot_IA_Alumnos.web.app.db import ping_db
+from .db import ping_db
 
 
 def create_app():
