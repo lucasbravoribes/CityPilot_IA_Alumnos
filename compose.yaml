@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-citypilot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-citypilot_local_solo_clase}
+      POSTGRES_DB: ${POSTGRES_DB:-citypilot}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    ports:
+      - "127.0.0.1:${PG_PORT:-5433}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-citypilot} -d ${POSTGRES_DB:-citypilot}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-citypilot}:${POSTGRES_PASSWORD:-citypilot_local_solo_clase}@db:5432/${POSTGRES_DB:-citypilot}
+    ports:
+      - "127.0.0.1:${WEB_PORT:-5000}:5000"
+    volumes:
+      - ./web:/app
+      - ./fixtures:/fixtures:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    command: python -m flask --app app.main run --host=0.0.0.0 --port=5000 --debug
+
+  jupyter:
+    build:
+      context: .
+      dockerfile: jupyter/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-citypilot}:${POSTGRES_PASSWORD:-citypilot_local_solo_clase}@db:5432/${POSTGRES_DB:-citypilot}
+      WEB_BASE_URL: http://web:5000
+    ports:
+      - "127.0.0.1:${JUPYTER_PORT:-8888}:8888"
+    volumes:
+      - ./notebooks:/workspace
+      - ./fixtures:/fixtures:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      jupyter lab --ip=0.0.0.0 --port=8888 --no-browser
+      --ServerApp.token='' --ServerApp.password='' --allow-root
+      --ServerApp.root_dir=/workspace
+
+volumes:
+  pg_data:
