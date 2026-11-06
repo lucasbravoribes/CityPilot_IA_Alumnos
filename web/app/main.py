@@ -31,7 +31,7 @@ def create_app():
         resultado, error = procesar_solicitud(datos)
         
         if error:
-            return render_template('index.html', error=error)
+            return render_template('index.html', error=error), 400
             
         return render_template('resultado.html', resultado=resultado)
 
@@ -44,7 +44,8 @@ def create_app():
         resultado, error = procesar_solicitud(datos)
         
         if error:
-            return jsonify({"error": error}), 400
+            codigo_http = 400 if "validación" in error.lower() else 502
+            return jsonify({"error": error}), codigo_http
             
         return jsonify(resultado), 200
 
