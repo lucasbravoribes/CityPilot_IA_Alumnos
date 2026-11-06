@@ -1,37 +1,52 @@
-"""Rutas del servicio Flask. Esqueleto intencionalmente incompleto."""
-from flask import Flask, jsonify, render_template, send_file
-from .db import ping_db, obtener_estadisticas, obtener_ultimas_solicitudes
-from .grafico import generar_grafico_png
-
+"""Rutas del servicio Flask. Integración completa."""
+from flask import Flask, jsonify, render_template, request, send_file
+from app.db import ping_db, obtener_estadisticas, obtener_ultimas_solicitudes
+from app.grafico import generar_grafico_png
+from app.orchestrator import procesar_solicitud
 
 def create_app():
     app = Flask(__name__)
 
     @app.get("/")
     def inicio():
-        # TODO(ALUMNADO): El formulario se desarrolla en templates/index.html.
         return render_template("index.html")
 
     @app.get("/api/health")
     def health():
-        # Punto de salud proporcionado para verificar Compose y PostgreSQL.
         try:
-            ping_db()
-            return jsonify(servicio="citypilot", estado="ok", db="ok")
+            db_status = ping_db()
+            return jsonify(servicio="citypilot", estado="ok", db="ok" if db_status else "error")
         except Exception:
             return jsonify(servicio="citypilot", estado="degradado", db="error"), 503
 
     @app.post("/planificar")
     def planificar_html():
-        # TODO(ALUMNADO): leer y validar request.form; llamar a UN orquestador
-        # compartido con /api/planificar; renderizar resultado.html.
-        return "Pendiente: formulario -> integración -> resultado", 501
+        datos = {
+            "ciudad": request.form.get("ciudad"),
+            "tipo": request.form.get("tipo"),
+            "duracion": request.form.get("duracion"),
+            "preferencias": request.form.get("preferencias", "")
+        }
+        
+        resultado, error = procesar_solicitud(datos)
+        
+        if error:
+            return render_template('index.html', error=error)
+            
+        return render_template('resultado.html', resultado=resultado)
 
     @app.post("/api/planificar")
     def planificar_api():
-        # TODO(ALUMNADO): leer JSON, usar EL MISMO orquestador y devolver JSON.
-        # Nunca duplicar la lógica de datos externos en las dos rutas.
-        return jsonify(error="Pendiente: API propia"), 501
+        datos = request.get_json()
+        if not datos:
+            return jsonify({"error": "No se proporcionó JSON"}), 400
+            
+        resultado, error = procesar_solicitud(datos)
+        
+        if error:
+            return jsonify({"error": error}), 400
+            
+        return jsonify(resultado), 200
 
     @app.get("/analitica")
     def analitica():
