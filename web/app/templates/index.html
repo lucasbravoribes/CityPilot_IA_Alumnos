@@ -1,25 +1,33 @@
 {% extends "base.html" %}
-{% block title %}Planificador · CityPilot IA{% endblock %}
+
 {% block content %}
-<section class="hero">
-  <span class="eyebrow">TALLER DE INTEGRACIÓN · DATOS EN DIRECTO</span>
-  <h1>¿Qué hacemos hoy?</h1>
-  <p>Elige dónde ir y cómo te apetece descubrir la ciudad. Combinaremos información meteorológica, lugares abiertos y un modelo generativo.</p>
-</section>
-<section class="surface">
-  <h2>Tu plan para hoy</h2>
-  <!-- TODO(ALUMNADO): construir aquí un formulario HTML real.
-       action="/planificar", method="POST".
-       Campos obligatorios: ciudad (texto), tipo_turismo (select con
-       cultural/gastronomica/naturaleza/familiar), duracion_horas (2,4,6).
-       Campo opcional: preferencias (textarea de 200 caracteres aprox.).
-       Botón submit. Etiquetas accesibles y validación básica HTML.
-       IMPORTANTE: no se proporciona el HTML del formulario. -->
-  <div class="todo">🛠️ <strong>Por implementar:</strong> formulario de preferencias y botón «Generar mi ruta».</div>
-</section>
-<section class="three">
-  <article class="tile"><h3>🌤️ Meteo</h3><p>El plan tendrá en cuenta el tiempo.</p></article>
-  <article class="tile"><h3>📍 Lugares reales</h3><p>El modelo recibirá destinos recuperados de OpenStreetMap.</p></article>
-  <article class="tile"><h3>🧠 Plan inteligente</h3><p>Reordenará y explicará las propuestas según tus preferencias.</p></article>
-</section>
+<h1>Planificador CityPilot</h1>
+<form action="/planificar" method="POST">
+    <label for="ciudad">Ciudad:</label>
+    <input type="text" id="ciudad" name="ciudad" required placeholder="Ej: Valencia">
+
+    <label for="tipo">Tipo de turismo:</label>
+    <select id="tipo" name="tipo" required>
+        <option value="cultural">Cultural</option>
+        <option value="gastronomico">Gastronómico</option>
+        <option value="naturaleza">Naturaleza</option>
+        <option value="familiar">Familiar</option>
+    </select>
+
+    <label for="duracion">Duración (horas):</label>
+    <select id="duracion" name="duracion" required>
+        <option value="2">2 horas</option>
+        <option value="4">4 horas</option>
+        <option value="6">6 horas</option>
+    </select>
+
+    <label for="preferencias">Preferencias (opcional):</label>
+    <input type="text" id="preferencias" name="preferencias" placeholder="Ej: evitar caminar mucho, con niños">
+
+    <button type="submit">Generar Ruta</button>
+</form>
+
+{% if error %}
+    <p style="color: red;">Error: {{ error }}</p>
+{% endif %}
 {% endblock %}
