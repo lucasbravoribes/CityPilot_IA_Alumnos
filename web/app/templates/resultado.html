@@ -1,13 +1,40 @@
 {% extends "base.html" %}
-{% block title %}Mi ruta · CityPilot IA{% endblock %}
+
 {% block content %}
-<section class="hero"><span class="eyebrow">TU ITINERARIO</span><h1>Un día diferente</h1></section>
-<section class="surface">
-  <!-- TODO(ALUMNADO): mostrar ciudad, tipo, temperatura, lluvia,
-       3-5 paradas, enlaces individuales a OSM si hay coordenadas,
-       tiempo estimado y texto generado por el modelo.
-       Si modo_demo: mostrar un aviso muy visible de DATOS SIMULADOS.
-       Si hay error: mostrar mensaje comprensible sin secretos. -->
-  <div class="todo">🛠️ Por implementar: resultado del planificador.</div>
+<h1>Tu ruta por {{ resultado.ciudad|capitalize }}</h1>
+
+{% if resultado.simulado %}
+<div style="background-color: #ffd700; padding: 10px; margin-bottom: 20px;">
+    <strong>Atención:</strong> Esta ruta es una sugerencia generada con datos de prueba (Mock) o el modelo no está verificado[cite: 1, 4].
+</div>
+{% endif %}
+
+<section>
+    <h2>🌤️ Clima actual</h2>
+    <p>Temperatura: {{ resultado.clima.temperatura }}°C | Condición: {{ resultado.clima.condicion }}</p>
 </section>
+
+<section>
+    <h2>📍 Lugares propuestos</h2>
+    <ul>
+        {% for lugar in resultado.lugares %}
+        <li>
+            {{ lugar.nombre }} 
+            <!-- Enlace a OpenStreetMap sin necesidad de JS[cite: 4] -->
+            <a href="https://www.openstreetmap.org/?mlat={{ lugar.lat }}&mlon={{ lugar.lon }}#map=17/{{ lugar.lat }}/{{ lugar.lon }}" target="_blank">
+                (Ver en el mapa)
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    <p><small>Nota: No se verifican horarios de apertura en tiempo real[cite: 5].</small></p>
+</section>
+
+<section>
+    <h2>🚶 Itinerario recomendado</h2>
+    <p>{{ resultado.itinerario }}</p>
+</section>
+
+<br>
+<a href="/">Volver al planificador</a>
 {% endblock %}
