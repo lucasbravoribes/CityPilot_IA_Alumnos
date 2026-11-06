@@ -1,5 +1,6 @@
 """Acceso a PostgreSQL. Conexión mínima dada; funciones de negocio pendientes."""
 import os
+import json
 from sqlalchemy import create_engine, text
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
@@ -13,20 +14,48 @@ def ping_db():
         return conn.execute(text("SELECT 1")).scalar_one()
 
 
+def _parametros_insert(registro: dict) -> dict:
+    """Prepara los valores del INSERT a partir del diccionario del orquestador."""
+    return {
+        "ciudad": registro["ciudad"],
+        "pais": registro.get("pais"),
+        "tipo_turismo": registro["tipo_turismo"],
+        "duracion_horas": registro["duracion_horas"],
+        "preferencias": registro.get("preferencias") or "",
+        "latitud": registro.get("latitud"),
+        "longitud": registro.get("longitud"),
+        "meteorologia": json.dumps(registro.get("meteorologia") or {}, ensure_ascii=False),
+        "lugares": json.dumps(registro.get("lugares") or [], ensure_ascii=False),
+        "prompt_usado": registro.get("prompt_usado"),
+        "itinerario": registro.get("itinerario"),
+        "estado": registro.get("estado", "ok"),
+        "duracion_ms": registro.get("duracion_ms"),
+        "error_resumido": registro.get("error_resumido"),
+        "modo_demo": bool(registro.get("modo_demo", False)),
+        "modo_modelo": registro.get("modo_modelo"),
+    }
+
+
 def guardar_solicitud(registro: dict) -> int:
-    """TODO(ALUMNADO): INSERT parametrizado; devolver id de solicitud.
-
-    La tabla existente es `solicitudes`. `registro` debe incluir: ciudad,
-    pais, tipo_turismo, duracion_horas, preferencias, latitud, longitud,
-    meteorologia, lugares, prompt_usado, itinerario, estado, duracion_ms,
-    error_resumido, modo_demo y modo_modelo. Los diccionarios/listas van
-    a columnas JSONB: podéis usar json.dumps(...) y CAST(:dato AS jsonb)
-    o declarar el tipo JSONB en el parámetro enlazado.
-
-    Pistas: with engine.begin() as conn; text(...); RETURNING id.
-    Nunca concatenar strings de entrada dentro del SQL.
-    """
-    raise NotImplementedError("Implementa INSERT en PostgreSQL")
+    """Inserta una solicitud en `solicitudes` y devuelve su id."""
+    if engine is None:
+        raise RuntimeError("Falta DATABASE_URL")
+    sql = text("""
+        INSERT INTO solicitudes (
+            ciudad, pais, tipo_turismo, duracion_horas, preferencias,
+            latitud, longitud, meteorologia, lugares, prompt_usado,
+            itinerario, estado, duracion_ms, error_resumido,
+            modo_demo, modo_modelo
+        ) VALUES (
+            :ciudad, :pais, :tipo_turismo, :duracion_horas, :preferencias,
+            :latitud, :longitud, CAST(:meteorologia AS jsonb), CAST(:lugares AS jsonb),
+            :prompt_usado, :itinerario, :estado, :duracion_ms, :error_resumido,
+            :modo_demo, :modo_modelo
+        )
+        RETURNING id
+    """)
+    with engine.begin() as conn:
+        return conn.execute(sql, _parametros_insert(registro)).scalar_one()
 
 
 def obtener_estadisticas() -> dict:
