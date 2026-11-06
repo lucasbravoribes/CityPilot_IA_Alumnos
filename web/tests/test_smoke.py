@@ -2,7 +2,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+# El paquete CityPilot_IA_Alumnos es la propia carpeta del repositorio.
+# Para importarlo por su nombre hay que añadir al path la carpeta padre del repo.
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from CityPilot_IA_Alumnos.web.app.main import create_app
 
 
