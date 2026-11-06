@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify
 from app.orchestrator import procesar_solicitud
+from app.db import ping_db
 
 main_bp = Blueprint('main', __name__)
 
